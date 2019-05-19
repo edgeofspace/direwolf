@@ -1,0 +1,5 @@
+direwolf: binary-without-manpage *
+direwolf: script-with-language-extension *
+direwolf: non-standard-toplevel-dir *
+direwolf: file-in-unusual-dir *
+direwolf: python-script-but-no-python-dep bin/telem-volts.py *

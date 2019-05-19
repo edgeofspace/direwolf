@@ -1,0 +1,51 @@
+Index: direwolf/Makefile.linux
+===================================================================
+--- direwolf.orig/Makefile.linux
++++ direwolf/Makefile.linux
+@@ -1,5 +1,8 @@
+ #
+ # Makefile for Linux version of Dire Wolf.
++# Edited by Edge Of Space Sciences https://eoss.org/
++# Updated for PPA package and SDR Tracker application.
++# Line 689 commented out to avoid package build error in chroot environment.
+ #
+ 
+ 
+@@ -680,7 +683,10 @@ install : $(APPS) direwolf.conf tocalls.
+ # Set group and mode of HID devices corresponding to C-Media USB Audio adapters.
+ # This will allow us to use the CM108/CM119 GPIO pins for PTT.
+ #
+-	$(INSTALL) -D --mode=644 99-direwolf-cmedia.rules /etc/udev/rules.d/99-direwolf-cmedia.rules
++# Commented out by EOSS to get arround PPA package error.  No plans to use
++# C-Media USB audio adapters.  Need to come up with better repair for chroot environment.
++#
++#	$(INSTALL) --mode=644 99-direwolf-cmedia.rules /etc/udev/rules.d/99-direwolf-cmedia.rules
+ #
+ 	@echo " "
+ 	@echo "If this is your first install, not an upgrade, type this to put a copy"
+Index: direwolf/direwolf.h
+===================================================================
+--- direwolf.orig/direwolf.h
++++ direwolf/direwolf.h
+@@ -42,7 +42,7 @@
+  * For example, if you wanted to use 4 audio devices at once, change this to 4.
+  */
+ 
+-#define MAX_ADEVS 3			
++#define MAX_ADEVS 18
+ 
+ 	
+ /*
+Index: direwolf/rrbb.c
+===================================================================
+--- direwolf.orig/rrbb.c
++++ direwolf/rrbb.c
+@@ -97,7 +97,7 @@ rrbb_t rrbb_new (int chan, int subchan,
+ 
+ 	new_count++;
+ 
+-	if (new_count > delete_count + 100) {
++	if (new_count > delete_count + 500) {
+ 	  text_color_set(DW_COLOR_ERROR);
+ 	  dw_printf ("MEMORY LEAK, rrbb_new, new_count=%d, delete_count=%d\n", new_count, delete_count);
+ 	}
