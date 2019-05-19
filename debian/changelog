@@ -1,4 +1,16 @@
-direwolf (1.5-1ppa1) bionic; urgency=medium
+direwolf (1.5.1-1ppa3) bionic; urgency=medium
+
+  * Initial release for PPA archive.  Added libgps23 dependency.
+
+ -- Jeff Shykula <jeff@zondectium.net>  Sat, 16 Feb 2019 17:05:49 -0700
+
+direwolf (1.5.1-1ppa2) bionic; urgency=medium
+
+  * Initial release for PPA archive.
+
+ -- Jeff Shykula <jeff@zondectium.net>  Sat, 16 Feb 2019 16:51:49 -0700
+
+direwolf (1.5.1-1ppa1) bionic; urgency=medium
 
   * Initial release for PPA archive.
 

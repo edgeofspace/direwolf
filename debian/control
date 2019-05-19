@@ -13,7 +13,7 @@ X-Python3-Version: >= 3.2
 
 Package: direwolf
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libasound2-dev (>= 1.1.3)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgps23, libasound2-dev (>= 1.1.3)
 Description: Version 1.5 direwolf prepared for EOSS
  Source from WB2OSZ direwolf 1.5 is prepared with additional
  resources for Edge of Space Sciences SDR tracker computers.
