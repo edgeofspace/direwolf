@@ -1,3 +1,7 @@
+# Added by JTS for PPA build environment
+.bzr
+.pc
+
 # Custom
 *.docx
 z*
