@@ -2,7 +2,7 @@ Source: direwolf
 Section: hamradio
 Priority: optional
 Maintainer: Jeff Shykula <jeff@zondectium.net>
-Build-Depends: debhelper (>= 10), dh-python, python-all, python-setuptools, python3-all, python3-setuptools, udev, libasound2-dev (>= 1.1.3)
+Build-Depends: debhelper (>= 10), dh-python, python-all, python-setuptools, python3-all, python3-setuptools, libasound2-dev (>= 1.1.3), libudev-dev, gpsd, libgps-dev
 Standards-Version: 4.1.2
 Homepage: https://www.eoss.org
 X-Python-Version: >= 2.6
