@@ -136,8 +136,9 @@ direwolf : direwolf.o aprs_tt.o audio_portaudio.o audio_stats.o ax25_link.o ax25
 		kiss.o kissserial.o kissnet.o latlong.o latlong.o log.o morse.o multi_modem.o \
 		waypoint.o serial_port.o pfilter.o ptt.o rdq.o recv.o rrbb.o server.o \
 		symbols.o telemetry.o textcolor.o tq.o tt_text.o tt_user.o xid.o xmit.o \
-		dwgps.o dwgpsnmea.o mheard.o
-	$(CC) $(CFLAGS) -o $@ $^ -lpthread $(LDLIBS) -lm
+		dwgps.o dwgpsnmea.o mheard.o db.o
+	$(CC) $(CFLAGS) -o $@ $^ -L/opt/local/lib/postgresql96 -lpq -lpthread $(LDLIBS) -lm
+#	$(CC) $(CFLAGS) -o $@ $^ -lpthread $(LDLIBS) -lm
 
 
 # Optimization for slow processors.
@@ -193,8 +194,8 @@ direwolf.conf : generic.conf
 # Where should we install it?
 # Macports typically installs in /opt/local so maybe you want to use that instead.
 
-INSTALLDIR := /usr/local
-#INSTALLDIR := /opt/local
+#INSTALLDIR := /usr/local
+INSTALLDIR := /opt/local
 
 # TODO:  Test this better.
 

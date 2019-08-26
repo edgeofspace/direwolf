@@ -31,6 +31,8 @@ enum sendto_type_e { SENDTO_XMIT, SENDTO_IGATE, SENDTO_RECV };
 
 #define MAX_BEACONS 30
 
+#define MAX_FREQMAP 30
+
 struct misc_config_s {
 
 	int agwpe_port;		/* Port number for the "AGW TCPIP Socket Interface" */
@@ -117,6 +119,17 @@ struct misc_config_s {
 				/* SABME is implemented but XID is not. */
 
 	int noxid_count;	/* Number of station addresses in array above. */
+    int direwolf_instance;  /* This is the Direwolf instance number to uniquely identify instances of Direwolf running on the same host */
+    int pgport;             /* This port number for Postgresql database connections */
+    char pghost[256];       /* Hostname for connections to a Postgresql database */
+    char pguser[256];       /* username for connections to a Postgresql database */
+    char pgdbname[256];     /* Database name for connections to a Postgresql database */
+    char pgpassword[256];   /* Postgresql password for connections to the database */
+    struct freqmap_s {  /* this is the structure that contains tuples of SDR#, CHANNEL#, and FREQ_IN_HZ values. */
+        int sdr;
+        int channel;
+        int freq;
+    } freqmap[MAX_FREQMAP];
 
 
 // Beacons.
