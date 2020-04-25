@@ -5,7 +5,7 @@
 
 This is a customized branch of Dire Wolf to enable reception of [APRS](http://www.aprs.org/) packets within the EOSS Tracker system for tracking high altitude balloons.  The EOSS Tracker system leverages several open source projects to provide a graphical (web-based), near real-time, system that enhances tracking and recovery efforts with APRS enabled HAB flights.  Information on the mainstream Dire Wolf branch can be found [here](direwolf-README.md).  
 
-<img src="eoss-block-diagram.png" alt="EOSS Tracker Block Diagram" width="800">
+<img src="eoss-block-diagram.jpg" alt="EOSS Tracker Block Diagram" width="800">
 
 There are two primary differences between this EOSS specific branch and the mainstream Dire Wolf distribution::
 - PostgreSQL integration so that incoming packets are saved to a database table.
@@ -119,7 +119,9 @@ The `FREQMAP` option is used to marry up an individual direwolf channel to the f
     FREQMAP <integer> <integer> <integer>
     FREQMAP <sdr or radio number> <direwolf channel number> <frequency in Hz>
 
-When defining the channels that direwolf will listen for audio streams from, the `CHANNEL` option is used to identify each one.  The `CHANNEL` number is incremented by two for each successive channel.  For example, a common direwolf confguration file might look something like this:
+When building the direwolf.conf configuration file, the `CHANNEL` option is used to identify each incoming audio stream.  The number used is incremented by two for each successive 
+channel (See the Dire Wolf [documentation](doc/README.md) for details).  For example, a common direwolf confguration file might look something like this, with four channels listening 
+to incoming audio:
 
     ..
     ..
@@ -157,11 +159,10 @@ When defining the channels that direwolf will listen for audio streams from, the
     ..
     ..
 
-To build a `FREQMAP` entry for this configuration we need to know two additional bits of information: 1) what sdr or radio is sending audio for each stream, and 2) what frequency are 
-they receving on.  With the direwolf.conf file shown above, let's assume we have two SDR systems, each listening on two frequencies for APRS packets.  Maybe we have a system something 
-like this:
+To build a `FREQMAP` entry for this configuration we need to know two additional bits of information: 1) what sdr or radio is sending audio, 2) which Dire Wolf channel is that audio
+being sent to, and 3) what frequency does that audio stream represent.  As an example, assume we have two SDR systems, each listening on two frequencies for APRS packets:
 
-<img src="example-sdr-setup.png" alt="Example SDR Rx Setup" width="800">
+<img src="example-sdr-setup.jpg" alt="Example SDR Rx Setup" width="800">
 
 For the first channel, `ADEVICE0`, our `FREQMAP` option would look like this for SDR #0, channel 0, and a frequency of 144.39MHz:
 
@@ -173,7 +174,7 @@ Continuing on to the second Dire Wolf channel for SDR #0, channel 2, and a frequ
     FREQMAP 0 0 144390000 0 2 144340000
 
 
-And completing the option we end up with the `FREQMAP` option looking like this for all four channels:
+And completing the `FREQMAP` option we end up with the following for all four channels Dire Wolf is listening too:
 
 
     FREQMAP 0 0 144390000 0 2 144340000 1 4 144390000 1 6 144825000
