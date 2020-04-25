@@ -190,7 +190,7 @@ void db_init (struct misc_config_s *misc_config)
  *
  * Function:	check_dw_packets_table
  *
- * Purpose:	This function will check for the existance of the dw_packet table and if not present, create it.
+ * Purpose:	This function will check for the existing of the dw_packet table and if not present, create it.
  *
  * Inputs:	 none.
  *
@@ -198,54 +198,59 @@ void db_init (struct misc_config_s *misc_config)
 
 bool check_dw_packets_table (void) {
     int num_rows;
+    bool status = false;
     char *result_str;
     PGresult *res;
     ExecStatusType resultStatus;
 
-    // Set the status this function will return to false initially.  Will be set to true (down below) if things work out.  ;)
-    bool status = false;
+    char *rec_value;
+    char *mark_value;
+    char *space_value;
 
-    /* SQL to check of the dw_packets table exists */
-    /* This should return a single row with a single column containing a 't' or 'f' for true or false respectively */
-    char check_if_exists[] = "select exists(select * from information_schema.tables where table_name = 'dw_packets');";
+    char rec_sql[] = "alter table dw_packets add column receive_level int;";
+    char mark_sql[] = "alter table dw_packets add column mark_level int;";
+    char space_sql[] = "alter table dw_packets add column space_level int;";
 
-    /* SQL to create the dw_packets table along with several indices */
-    char dw_packets[] = "create table dw_packets ( instance int, channel int, tm timestamp with time zone, sdr int, freq int, callsign text, heardfrom text, sourcename text, source_symbol text, speed_mph decimal, bearing decimal, altitude decimal, manufacturer text, status text, telemetry text, comment text, location2d geometry(POINT, 4326), location3d geometry(POINTZ, 4326), raw text, hash text, primary key (instance, channel, tm, callsign)); create index dw_packets_idx1 on dw_packets (callsign); create index dw_packets_idx3 on dw_packets (hash); create index dw_packets_idx4 on dw_packets(freq);";
+    char query[1024];
+    char dw_packets[] = "create table dw_packets ( instance int, channel int, tm timestamp with time zone, sdr int, freq int, callsign text, heardfrom text, sourcename text, source_symbol text, speed_mph decimal, bearing decimal, altitude decimal, manufacturer text, status text, telemetry text, comment text, location2d geometry(POINT, 4326), location3d geometry(POINTZ, 4326), raw text, hash text, receive_level int, mark_level int, space_level int, primary key (instance, channel, tm, callsign)); create index dw_packets_idx1 on dw_packets (callsign); create index dw_packets_idx3 on dw_packets (hash); create index dw_packets_idx4 on dw_packets(freq);";
 
-    /* Execute the SQL statement to determine if the dw_packets table exists or not */
-    res = PQexec(db_connection, check_if_exists);
+    strlcpy(query, "", sizeof(query));
+    snprintf (query, sizeof(query), "select exists(select * from information_schema.tables where table_name = 'dw_packets');");
+    
+    /* Execute the SQL statement */
+    res = PQexec(db_connection, query);
     resultStatus = PQresultStatus(res);
 
     /* Check return code */
     if (resultStatus != PGRES_TUPLES_OK && resultStatus != PGRES_SINGLE_TUPLE) {
         text_color_set(DW_COLOR_ERROR);
         dw_printf ("Error checking if table dw_packets exists:  %s.\n", PQerrorMessage(db_connection));
-        dw_printf ("SQL:  %s.\n", check_if_exists);
+        dw_printf ("SQL:  %s.\n", query);
     }
     else {
-        // The SQL executed successfully...
-        // Now we determine if the table row return was "t" or "f"
+        // we determine if the table row return was "t" or "f"
         num_rows = PQntuples(res);
 
-        // Sanity check to make sure we returned at least 1 row
         if (num_rows > 0) {
-            // evaluate and create if needed 
+            // evaluate and create the table if needed 
             result_str = PQgetvalue(res, 0, 0);
-
-            // If 'f' then the dw_packets table doesn't exist.  Now we need to create it
-            if (result_str[0] == 'f') {
+            if (result_str[0] == 'f') { // the table does not exist...
+                // create the table
                
-                /* Clear the prior result */ 
+                /* Clear prior result */ 
                 PQclear(res);
 
+                strlcpy(query, "", sizeof(query));
+                snprintf (query, sizeof(query), "%s", dw_packets);
+     
                 /* Execute the SQL statement to create the table */
-                res = PQexec(db_connection, dw_packets);
+                res = PQexec(db_connection, query);
 
                 /* Check return code */
                 if (PQresultStatus(res) != PGRES_COMMAND_OK) {
                     text_color_set(DW_COLOR_ERROR);
                     dw_printf ("Error creating table dw_packets:  %s.\n", PQerrorMessage(db_connection));
-                    dw_printf ("SQL:  %s.\n", dw_packets);
+                    dw_printf ("SQL:  %s.\n", query);
                 }
                 else {
                     text_color_set(DW_COLOR_INFO);
@@ -253,16 +258,81 @@ bool check_dw_packets_table (void) {
                     status = true;
                 }
             }
-            else {
-                status = true;
-            }
+            else { // the table exists...
+                /* Check if the table has the audio level columns: receive_level, mark_level, space_level. */
+               
+                /* Clear prior result */ 
+                PQclear(res);
+              
+                /* query to check if the columns exist */
+                strlcpy(query, "", sizeof(query));
+                snprintf (query, sizeof(query), "select (SELECT EXISTS (SELECT * FROM information_schema.columns WHERE table_name='dw_packets' AND column_name='receive_level')) as rec, (SELECT EXISTS (SELECT * FROM information_schema.columns WHERE table_name='dw_packets' AND column_name='mark_level')) as mark, (SELECT EXISTS (SELECT * FROM information_schema.columns WHERE table_name='dw_packets' AND column_name='space_level')) as space;");
 
+                /* Execute the SQL statement */
+                res = PQexec(db_connection, query);
+                resultStatus = PQresultStatus(res);
+                
+                /* Check return code of column check */
+                if (resultStatus != PGRES_TUPLES_OK && resultStatus != PGRES_SINGLE_TUPLE) {
+                    text_color_set(DW_COLOR_ERROR);
+                    dw_printf ("PQresultStatus:  %s.\n", PQresStatus(resultStatus));
+                    dw_printf ("Error checking if table columns for dw_packets exist: %s.\n", PQerrorMessage(db_connection));
+                    dw_printf ("SQL:  %s.\n", query);
+                }
+                else {
+                    // we determine if the table row return was "t" or "f"
+                    num_rows = PQntuples(res);
+
+                    if (num_rows > 0) {
+                        // evaluate if columns exist
+                        rec_value = PQgetvalue(res, 0, 0);
+                        mark_value = PQgetvalue(res, 0, 1);
+                        space_value = PQgetvalue(res, 0, 2);
+
+                        /* prepare the query */
+                        strlcpy(query, "", sizeof(query));
+                        if (rec_value[0] == 'f') 
+                           strlcat(query, rec_sql, sizeof(query));
+                        if (mark_value[0] == 'f') 
+                           strlcat(query, mark_sql, sizeof(query));
+                        if (space_value[0] == 'f') 
+                           strlcat(query, space_sql, sizeof(query));
+
+
+                        /* if any of these columns are missing, then run the query to add them to the dw_packets table */
+                        if (rec_value[0] == 'f' || mark_value[0] == 'f' || space_value[0] == 'f') {
+                            /* Clear prior result */ 
+                            PQclear(res);
+
+                            /* Execute the SQL statement to create the table */
+                            res = PQexec(db_connection, query);
+
+                            /* Check return code */
+                            if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+                                text_color_set(DW_COLOR_ERROR);
+                                dw_printf ("Error trying to add table columns for dw_packets :  %s.\n", PQerrorMessage(db_connection));
+                                dw_printf ("SQL:  %s.\n", query);
+                            }
+                            else {
+                                text_color_set(DW_COLOR_INFO);
+                                dw_printf ("columns added to dw_packets table successfully\n");
+                                status = true;
+                            }
+                        }
+                        else // the columns already exist...all good.
+                            status = true;
+                    }
+                    else { // num_rows > 0
+                        text_color_set(DW_COLOR_ERROR);
+                        dw_printf ("Error:  unable to get a list of columns for the dw_packets table from the database.");
+                    }   
+                }  /* Check return code of column check */
+            } // the table exists...
         }
         else {
             text_color_set(DW_COLOR_ERROR);
             dw_printf ("Error:  unable to get a list of tables from the database.");
         }
-
     }
 
     /* Clear result */
@@ -280,15 +350,19 @@ bool check_dw_packets_table (void) {
  *
  * Purpose:	Add a row to the dw_packets table.
  *
- * Inputs:	chan	- Radio channel where heard.
+ * Inputs:	
  *
- *		A	- Exploded information from APRS packet.
+ *      chan     - Radio channel where heard.
  *
- *		pp	- Received packet object.
+ *		A        - Explode information from APRS packet.
+ *
+ *		pp       - Received packet object.
+ *
+ *		alevel   - audio levels
  *
  *------------------------------------------------------------------*/
 
-void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
+void db_write_recv (int chan, decode_aprs_t *A, packet_t pp, alevel_t alevel)
 {
 	char heard[AX25_MAX_ADDR_LEN+1];
 	int h;
@@ -325,7 +399,7 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
 	assert (pp != NULL);
 
 
-    /* Make sure the connection to the PostgresQL database is still okay */
+    /* Connect to the PostgresQL database */
     if (PQstatus(db_connection) != CONNECTION_OK) {
 	    text_color_set(DW_COLOR_ERROR);
 	    dw_printf("Connection to database failed:  %s.\n", PQerrorMessage(db_connection));
@@ -385,8 +459,6 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
 
     // Copy the contents of pinfo (which after the above...should contain the info part of the APRS packet) into the infopart array
     strlcpy(infopart, (char *) pinfo, info_len+1);
-
-    // Trim off ending carriage returns and newline characters from the info part of the packet...just in case.
     trim(infopart);
 
 
@@ -427,6 +499,8 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
     strlcpy (sstatus, A->g_mic_e_status, sizeof(sstatus));
     strlcpy (stelemetry, A->g_telemetry, sizeof(stelemetry));
     strlcpy (scomment, A->g_comment, sizeof(scomment));
+	//e_stelemetry = make_ascii_only(A->g_telemetry, strlen(A->g_telemetry), (char *) &stelemetry, sizeof(stelemetry));
+	//e_scomment = make_ascii_only(A->g_comment, strlen(A->g_comment), (char *) &scomment, sizeof(scomment));
 	strlcpy (slat, "", sizeof(slat));  if (A->g_lat != G_UNKNOWN)         snprintf (slat, sizeof(slat), "%.6f", A->g_lat);  else coords_valid = false;
 	strlcpy (slon, "", sizeof(slon));  if (A->g_lon != G_UNKNOWN)         snprintf (slon, sizeof(slon), "%.6f", A->g_lon);  else coords_valid = false;
 	strlcpy (sspd, "", sizeof(sspd));  snprintf (sspd, sizeof(sspd), "%.1f", (A->g_speed_mph != G_UNKNOWN ? A->g_speed_mph : 0));
@@ -438,15 +512,11 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
 
 	/* Create the SQL statement for dealing with the GIS 2D and 3D locations/coords along with altitude in meters */
     if (coords_valid == FALSE || (A->g_lat == 0 && A->g_lon == 0)) { 
-        // If no coords, then set the GIS strings to null
         snprintf (geom_string, sizeof(geom_string), "NULL");
         snprintf (geom_string3d, sizeof(geom_string3d), "NULL");
     }
     else {
-        // Valid coordinates in this packet
         snprintf (geom_string, sizeof(geom_string), "ST_GeometryFromText('POINT(%s %s)', 4326)", slon, slat);
-
-        // Check if an altitude was provided in the packet, and if so, convert it from feet to meters for GIS
         if (A->g_altitude_ft != G_UNKNOWN && A->g_altitude_ft != 0)
             snprintf (geom_string3d, sizeof(geom_string3d), "ST_GeometryFromText('POINTZ(%s %s %.2f)', 4326)", slon, slat, DW_FEET_TO_METERS(A->g_altitude_ft));
         else
@@ -472,7 +542,7 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
     }
 
     /* Create the SQL insert command... */
-	snprintf (sql_insert_string, sizeof(sql_insert_string), "insert into dw_packets (instance, channel, tm, sdr, freq, callsign, heardfrom, sourcename, source_symbol, speed_mph, bearing, altitude, manufacturer, status, telemetry, comment, location2d, location3d, raw, hash) values(%d, %d,NOW(), %d, %d, '%s','%s', '%s',%s, %s,%s,%s, %s, %s, %s, %s, %s, %s, %s, md5(%s));\n", 
+	snprintf (sql_insert_string, sizeof(sql_insert_string), "insert into dw_packets (instance, channel, tm, sdr, freq, callsign, heardfrom, sourcename, source_symbol, speed_mph, bearing, altitude, manufacturer, status, telemetry, comment, location2d, location3d, raw, hash, receive_level, mark_level, space_level) values(%d, %d,NOW(), %d, %d, '%s','%s', '%s',%s, %s,%s,%s, %s, %s, %s, %s, %s, %s, %s, md5(%s), %d, %d, %d);\n", 
         DWInstance,
 	    chan, 
         (ptr == NULL ? 0 : ptr->sdr),
@@ -491,7 +561,10 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
         geom_string, 
         geom_string3d, 
         e_packettext,
-        e_infopart);
+        e_infopart, 
+        alevel.rec,
+        alevel.mark,
+        alevel.space);
 
     /* Execute the SQL statement */
     PGresult *res = PQexec(db_connection, sql_insert_string);
@@ -506,11 +579,11 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
         text_color_set(DW_COLOR_INFO);
 	    dw_printf ("Attempting without telemetry and comment fields.\n");
 
-        // Try insert again with telemetry and comment fields set to NULL...as most insertion fails are because of odd-ball characters in these fields.
+        // Try insert again with telemetry and comment fields set to NULL...
         PQclear(res);
            
         /* Create the SQL insert command... */
-        snprintf (sql_insert_string, sizeof(sql_insert_string), "insert into dw_packets (instance, channel, tm, sdr, freq, callsign, heardfrom, sourcename, source_symbol, speed_mph, bearing, altitude, manufacturer, status, telemetry, comment, location2d, location3d, raw, hash) values(%d, %d,NOW(), %d, %d, '%s','%s', '%s',%s, %s,%s,%s, %s, %s, %s, %s, %s, %s, %s, md5(%s));\n", 
+        snprintf (sql_insert_string, sizeof(sql_insert_string), "insert into dw_packets (instance, channel, tm, sdr, freq, callsign, heardfrom, sourcename, source_symbol, speed_mph, bearing, altitude, manufacturer, status, telemetry, comment, location2d, location3d, raw, hash, receive_level, mark_level, space_level) values(%d, %d,NOW(), %d, %d, '%s','%s', '%s',%s, %s,%s,%s, %s, %s, %s, %s, %s, %s, %s, md5(%s), %d, %d, %d);\n", 
             DWInstance,
             chan, 
             (ptr == NULL ? 0 : ptr->sdr),
@@ -529,7 +602,10 @@ void db_write_recv (int chan, decode_aprs_t *A, packet_t pp)
             geom_string, 
             geom_string3d, 
             e_packettext,
-            e_infopart);
+            e_infopart,
+            alevel.rec,
+            alevel.mark,
+            alevel.space);
 
         /* re-execute the SQL command, but without the telemetry and comment fields. */
         res = PQexec(db_connection, sql_insert_string);

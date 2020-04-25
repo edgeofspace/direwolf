@@ -26,7 +26,7 @@
 void db_init (struct misc_config_s *config);
 
 //  db_write_recv will add a record to the aprs_packets table
-void db_write_recv (int chan, decode_aprs_t *A, packet_t pp);
+void db_write_recv (int chan, decode_aprs_t *A, packet_t pp, alevel_t alevel);
 
 //  db_write_xmit will add a record to the aprs_beacons table
 //void db_write_xmit (int chan, decode_aprs_t *A, packet_t pp);

@@ -1125,7 +1125,7 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 
       // Write output to database
       if (db_opt != 0)  {
-          db_write_recv (chan, &A, pp);
+          db_write_recv (chan, &A, pp, alevel);
       }
 
 	  // temp experiment.
