@@ -217,7 +217,7 @@ our station has heard directly over the last 5 minutes from SDR #0 on 144.390MHz
 
 Running the query:  
 
-    cat example.sql | psql -d aprs
+    cat example.sql | psql -d <insert your DB name here>
 
 
 Query output:
