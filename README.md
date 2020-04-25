@@ -1,173 +1,175 @@
 ﻿
-# Dire Wolf #
+# Dire Wolf - Edge of Space Sciences (EOSS) Branch #
 
-### Decoded Information from Radio Emissions for Windows Or Linux Fans ###
+## About This Branch ###
 
-In the early days of Amateur Packet Radio, it was necessary to use an expensive “Terminal Node Controller” (TNC) with specialized hardware.  Those days are gone.  You can now get better results at lower cost by connecting your radio to the “soundcard” interface of a computer and using software to decode the signals.
+This is a customized branch of Dire Wolf to enable reception of [APRS](http://www.aprs.org/) packets within the EOSS Tracker system for tracking high altitude balloons.  The EOSS Tracker system leverages several open source projects to provide a graphical (web-based), near real-time, system that enhances tracking and recovery efforts with APRS enabled HAB flights.  Information on the mainstream Dire Wolf branch can be found [here](direwolf-README.md).  
 
-Why settle for mediocre receive performance from a 1980's technology  TNC using an old modem chip?   Dire Wolf decodes over 1000 error-free frames from Track 2 of the [WA8LMF TNC Test CD](https://github.com/wb2osz/direwolf/tree/dev/doc/WA8LMF-TNC-Test-CD-Results.pdf), leaving all the hardware TNCs, and first generation "soundcard" modems, behind in the dust.
+There are two primary differences between this EOSS specific branch and the mainstream Dire Wolf distribution::
+- PostgreSQL integration so that incoming packets are saved to a database table.
+- Increased channel limits over the default of 3
 
-![](tnc-test-cd-results.png)
-
- 
-Dire Wolf is a modern software replacement for the old 1980's style TNC built with special hardware.
-
-Without any additional software, it can perform as:
-
- - APRS GPS Tracker
- - Digipeater
- - Internet Gateway (IGate)
-- [APRStt](http://www.aprs.org/aprstt.html) gateway
+These changes allow Dire Wolf to be come the primary RF receive mechanism for getting APRS packets into the EOSS Tracker system.  Having database connectivity allows the overall system to have a history of heard APRS packets that is indexed and searchable. 
 
 
-It can also be used as a virtual TNC for other applications such as [APRSIS32](http://aprsisce.wikidot.com/), [UI-View32](http://www.ui-view.net/), [Xastir](http://xastir.org/index.php/Main_Page), [APRS-TW](http://aprstw.blandranch.net/), [YAAC](http://www.ka2ddo.org/ka2ddo/YAAC.html), [UISS](http://users.belgacom.net/hamradio/uiss.htm), [Linux AX25](http://www.linux-ax25.org/wiki/Main_Page), [SARTrack](http://www.sartrack.co.nz/index.html), [Winlink Express (formerly known as RMS Express, formerly known as Winlink 2000 or WL2K)](http://www.winlink.org/RMSExpress), [BPQ32](http://www.cantab.net/users/john.wiseman/Documents/BPQ32.html), [Outpost PM](http://www.outpostpm.org/), and many others.
- 
- 
-## Features & Benefits ##
+## Platforms and Build Instructions ###
 
-![](direwolf-block-diagram.png)
+Given that the EOSS Tracker system is based on Ubuntu Linux no effort has been made to ensure other platforms (ex. Windows, Mac OS X, etc.) can properly build and run this branch.  However, it "should" compile on other platforms if care is taken to get PostgreSQL libraries and include files accounted for.
 
-### Dire Wolf includes: ###
+### Ubuntu build instructions ###
 
+There are several prerequisite packages needed in order to compile the branch:
 
+    apt-get -y install postgresql postgresql-contrib postgis postgresql-10-postgis-2.4 postgresql-10-postgis-scripts libpq-dev
+    
 
-- **Beaconing, Tracker, Telemetry Toolkit.**
-
-     Send periodic beacons to provide information to others.  For tracking the location is provided by a GPS receiver.
-     Build your own telemetry applications with the toolkit.
-
-
-- **APRStt Gateway.**
-
-     Very few hams have portable equipment for APRS but nearly everyone has a handheld radio that can send DTMF tones.  APRStt allows a user, equipped with only DTMF (commonly known as Touch Tone) generation capability, to enter information into the global APRS data network.  Responses can be sent by Morse Code or synthesized speech.
-
-- **Digipeaters for APRS and traditional Packet Radio.**
-
-    Extend the range of other stations by re-transmitting their signals. Unmatched flexibility for cross band repeating and filtering to limit what is retransmitted.
-
-- **Internet Gateway (IGate).**
-
-    IGate stations allow communication between disjoint radio networks by allowing some content to flow between them over the Internet.
-
-
-- **AX.25 v2.2 Link Layer.**
-
-    Traditional connected mode packet radio where the TNC automatically retries transmissions and delivers data in the right order.
-
-- **KISS Interface (TCP/IP, serial port, Bluetooth) & AGW network Interface (TCP/IP).**
-
-    Dire Wolf can be used as a virtual TNC for applications such as   APRSIS32,           UI-View32, Xastir, APRS-TW,YAAC, UISS, Linux  AX25, SARTrack, Winlink / RMS Express, Outpost PM, and many others.  
-
-### Radio Interfaces:   ###
-
-- **Uses computer’s “soundcard” and digital signal processing.**
-
-    Lower cost and better performance than specialized hardware. 
-
-    Compatible interfaces include [UDRC](https://nw-digital-radio.groups.io/g/udrc/wiki/UDRC%E2%84%A2-and-Direwolf-Packet-Modem), [SignaLink USB](http://www.tigertronics.com/slusbmain.htm), [DMK URI](http://www.dmkeng.com/URI_Order_Page.htm), [RB-USB RIM](http://www.repeater-builder.com/products/usb-rim-lite.html), [RA-35](http://www.masterscommunications.com/products/radio-adapter/ra35.html), and many others.
-
-
-
-- **Standard 300, 1200 & 9600 bps modems and more.**
-
-- **DTMF (“Touch Tone”) Decoding and Encoding.**
- 
-- **Speech Synthesizer & Morse code generator.**
-
-    Transmit human understandable messages.
-
-- **Compatible with Software Defined Radios such as gqrx, rtl_fm, and SDR#.**
-
-- **Concurrent operation with up to 3 soundcards and 6 radios.**
-
-### Portable & Open Source:   ###
-
-- **Runs on Windows, Linux (PC/laptop, Raspberry Pi, etc.), Mac OSX.**
-
-
-
-## Documentation ##
-
-[Stable Version](https://github.com/wb2osz/direwolf/tree/master/doc)
-
-[Latest Development Version](https://github.com/wb2osz/direwolf/tree/dev/doc)
-
-[Power Point presentation](https://github.com/wb2osz/direwolf-presentation)  -- Why not give a talk at a local club meeting?
-
-
-## Installation ##
-
-### Windows ###
-
-Go to the [**releases** page](https://github.com/wb2osz/direwolf/releases).   Download a zip file with "win" in its name, unzip it, and run direwolf.exe from a command window.
-
-For more details see the **User Guide** in the [**doc** directory](https://github.com/wb2osz/direwolf/tree/master/doc).  
-
-
-
-
-### Linux - Using git clone (recommended) ###
+Use git to download the most recent release of the EOSS branch:
 
 	cd ~
-	git clone https://www.github.com/wb2osz/direwolf
+	git clone https://www.github.com/edgeofspace/direwolf
 	cd direwolf
+    git checkout eoss
+
+
+Build the binaries:
+
 	make
 	sudo make install
 	make install-conf
 
-This should give you the most recent stable release.  If you want the latest (possibly unstable) development version, use "git checkout dev" before the first "make" command.
 
-For more details see the **User Guide** in the [**doc** directory](https://github.com/wb2osz/direwolf/tree/master/doc).  Special considerations for the Raspberry Pi are found in **Raspberry-Pi-APRS.pdf**
+### The Underlying Database Table ###
+
+This branch of Dire Wolf will attempt to save each incoming packet as a row within a database table.  It will create that table automatically so no provisions need to be made for creating a table beforehand.  There are a couple of important prerequisites for proper operation:
+- The postgis extention should be added to your database
+- Database credentials (username & password) that direwolf can use for database connectivity.  This account should have permissions to create tables.
+
+Upon startup, Dire Wolf will attempt to create the following table and indices (one doesn't need to create this...only included here for reference):
+
+    CREATE TABLE public.dw_packets (
+        instance integer NOT NULL,
+        channel integer NOT NULL,
+        tm timestamp with time zone NOT NULL,
+        sdr integer,
+        freq integer,
+        callsign text NOT NULL,
+        heardfrom text,
+        sourcename text,
+        source_symbol text,
+        speed_mph numeric,
+        bearing numeric,
+        altitude numeric,
+        manufacturer text,
+        status text,
+        telemetry text,
+        comment text,
+        location2d public.geometry(Point,4326),
+        location3d public.geometry(PointZ,4326),
+        raw text,
+        hash text,
+        receive_level integer,
+        mark_level integer,
+        space_level integer
+    );
+    
+    ALTER TABLE ONLY public.dw_packets ADD CONSTRAINT dw_packets_pkey PRIMARY KEY (instance, channel, tm, callsign);
+    CREATE INDEX dw_packets_idx1 ON public.dw_packets USING btree (callsign);
+    CREATE INDEX dw_packets_idx3 ON public.dw_packets USING btree (hash);
+    CREATE INDEX dw_packets_idx4 ON public.dw_packets USING btree (freq);
 
 
-### Linux - Using apt-get (Debian flavor operating systems) ###
+## Additional Configuration Options ##
 
-Results will vary depending on your hardware platform and operating system version because it depends on various volunteers who perform the packaging.  
+There are several additional options that should be used within one's direwolf.conf configuration file for specifying database connections, etc..  A quick example:
 
-	sudo apt-get update
-    apt-cache showpkg direwolf
-	sudo apt-get install direwolf
-
-
-### Linux - Using yum (Red Hat flavor operating systems) ###
-
-Results will vary depending on your hardware platform and operating system version because it depends on various volunteers who perform the packaging.  
-
-	sudo yum check-update
-    sudo yum list direwolf
-	sudo yum install direwolf
-
-### Linux - Download source in tar or zip file ###
-
-Go to the [releases page](https://github.com/wb2osz/direwolf/releases).  Chose desired release and download the source as zip or compressed tar file.  Unpack the files, with "unzip" or "tar xfz," and then:
-
-	cd direwolf-*
-	make
-	sudo make install
-	make install-conf
-
-For more details see the **User Guide** in the [**doc** directory](https://github.com/wb2osz/direwolf/tree/master/doc).  Special considerations for the Raspberry Pi are found in **Raspberry-Pi-APRS.pdf**
+    INSTANCE 0
+    PGUSER dbusername
+    PGPASSWORD dbpassword
+    PGDBNAME dbname
+    FREQMAP  0 0 144390000 0 2 144340000 0 4 145825000 1 6 144390000 1 8 144340000 1 10 145825000
 
 
-### Macintosh OS X ###
+### INSTANCE ###
 
-Read the **User Guide** in the [**doc** directory](https://github.com/wb2osz/direwolf/tree/master/doc).   It is a lot more complicated than Linux.  
+The `INSTANCE` variable should be an integer that defines the unique instance of direwolf running on a user's system.  It's certainly possible to have multiple copies of direwolf running on the same system, all saving packets to the `dw_packets` database table.  The instance number ensures that each of these separate direwolf instances is uniquely defined within the database.
 
-If you have problems,  post them to the [Dire Wolf packet TNC](https://groups.yahoo.com/neo/groups/direwolf_packet/info) discussion group.   I don't have a Mac and probably won't be able to help you.  I rely on others, in the user community, for the Mac version.
+    INSTANCE <integer>
 
 
+### PGUSER, PGPASSWORD, PGDBNAME ###
 
-## Join the conversation  ##
- 
-Here are some good places to ask questions and share your experience:
+The `PGUSER` and `PGPASSWORD` options specify a database user and accompanying password with login rights as well as table creation rights to the database defined by `PGDBNAME`.  Do not use quotation marks around the username, password, or database name.
 
-- [Dire Wolf packet TNC](https://groups.yahoo.com/neo/groups/direwolf_packet/info) 
+    PGUSER <string>
+    PGPASSWORD <string>
+    PGDBNAME <string>
 
-- [Raspberry Pi 4 Ham Radio](https://groups.io/g/RaspberryPi-4-HamRadio)
 
-- [linuxham](https://groups.io/g/linuxham)
+### FREQMAP ###
 
-- [TAPR aprssig](http://www.tapr.org/pipermail/aprssig/)
- 
+The `FREQMAP` option is used to marry up an individual direwolf channel to the frequency being listed to on the radio or SDR.  Each direwolf channel is uniquely enumerated 
+(within the direwolf.conf), however, when there are multiple incoming audio streams we need a way identify which stream corresponds to which RF frequency.  
 
-The github "issues" section is for reporting software defects and enhancement requests.  It is NOT a place to ask questions or have general discussions.  Please use one of the locations above.
+    FREQMAP <integer> <integer> <integer>
+    FREQMAP <sdr or radio number> <direwolf channel number> <frequency in Hz>
+
+When defining the channels that direwolf will listen for audio streams from, the `CHANNEL` option is used to identify each one.  The `CHANNEL` number is incremented by two for each successive channel.  For example, a common direwolf confguration file might look something like this:
+
+    ..
+    ..
+    ADEVICE0 udp:12000 null
+    ARATE 48000
+    ACHANNELS 1
+    CHANNEL 0
+    MYCALL N0CALL
+    MODEM 1200
+    FIX_BITS 0
+
+    ADEVICE1 udp:12001 null
+    ARATE 48000
+    ACHANNELS 1
+    CHANNEL 2
+    MYCALL N0CALL
+    MODEM 1200
+    FIX_BITS 0
+
+    ADEVICE2 udp:12010 null
+    ARATE 48000
+    ACHANNELS 1
+    CHANNEL 4
+    MYCALL N0CALL
+    MODEM 1200
+    FIX_BITS 0
+
+    ADEVICE3 udp:12011 null
+    ARATE 48000
+    ACHANNELS 1
+    CHANNEL 6
+    MYCALL N0CALL
+    MODEM 1200
+    FIX_BITS 0
+    ..
+    ..
+
+To build a `FREQMAP` entry for this configuration we need to know two additional bits of information: 1) what sdr or radio is sending audio for each stream, and 2) what frequency are 
+they receving on.  With the direwolf.conf file shown above, let's assume we have two SDR systems, each listening on two frequencies for APRS packets.  Maybe we have a system something 
+like this:
+
+<<< insert picture >>>
+
+For the first channel, `ADEVICE0`, our `FREQMAP` option would look like this for SDR #0, channel 0, and a frequency of 144.39MHz:
+
+    FREQMAP 0 0 144390000
+
+
+Continuing on to the second Dire Wolf channel for SDR #0, channel 2, and a frequency of 144.340MHz:
+
+    FREQMAP 0 0 144390000 0 2 144340000
+
+
+And completing the option we end up with the `FREQMAP` option looking like this for all four channels:
+
+
+    FREQMAP 0 0 144390000 0 2 144340000 1 4 144390000 1 6 144825000
+
+
