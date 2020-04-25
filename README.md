@@ -5,6 +5,7 @@
 
 This is a customized branch of Dire Wolf to enable reception of [APRS](http://www.aprs.org/) packets within the EOSS Tracker system for tracking high altitude balloons.  The EOSS Tracker system leverages several open source projects to provide a graphical (web-based), near real-time, system that enhances tracking and recovery efforts with APRS enabled HAB flights.  Information on the mainstream Dire Wolf branch can be found [here](direwolf-README.md).  
 
+### EOSS Tracker Block Diagram ###
 <img src="eoss-block-diagram.jpg" alt="EOSS Tracker Block Diagram" width="800">
 
 There are two primary differences between this EOSS specific branch and the mainstream Dire Wolf distribution::
@@ -162,6 +163,8 @@ to incoming audio:
 To build a `FREQMAP` entry for this configuration we need to know two additional bits of information: 1) what sdr or radio is sending audio, 2) which Dire Wolf channel is that audio
 being sent to, and 3) what frequency does that audio stream represent.  As an example, assume we have two SDR systems, each listening on two frequencies for APRS packets:
 
+### Example SDR System ###
+
 <img src="example-sdr-setup.jpg" alt="Example SDR Rx Setup" width="800">
 
 For the first channel, `ADEVICE0`, our `FREQMAP` option would look like this for SDR #0, channel 0, and a frequency of 144.39MHz:
@@ -178,5 +181,57 @@ And completing the `FREQMAP` option we end up with the following for all four ch
 
 
     FREQMAP 0 0 144390000 0 2 144340000 1 4 144390000 1 6 144825000
+
+
+## Using Data ##
+
+Once Dire Wolf is operational and running, rows of data should start to appear in the `dw_packets` database table.  For example, what if we wanted to list all of the packets
+our station has heard directly over the last 5 minutes from SDR #0 on 144.390MHz?  We could use a bit of SQL like this (see [example.sql](example.sql)):
+
+### Example.sql ###
+
+    select  distinct 
+        date_trunc('second', a.tm)::time without time zone as thetime,
+        a.instance || ',' || a.channel || ',' || a.sdr as instance_channel_sdr,
+        a.callsign,
+        a.heardfrom,
+        round(cast(ST_Y(a.location2d) as numeric), 3) || ', ' || round(cast(ST_X(a.location2d) as numeric), 3) as coords,
+        round(a.altitude,0) as "alt",
+        round(cast(ST_DistanceSphere(ST_GeomFromText('POINT(-104.990278 39.739167)',4326), a.location2d)*.621371/1000 as numeric), 2) as "distance (mi) from Denver"
+
+    from
+        dw_packets a
+
+    where 
+        a.tm > (now() - time '00:05:00')
+        and a.location2d != ''
+        and a.freq = '144390000'
+        and a.sdr = 0
+        and a.callsign = a.heardfrom
+
+    order by 
+        thetime asc,
+        callsign 
+    ;
+
+
+Running the query:  
+
+    cat example.sql | psql -d aprs
+
+
+Query output:
+
+     thetime  | instance_channel_sdr | callsign | heardfrom |      coords      | alt  | distance (mi) from Denver 
+    ----------+----------------------+----------+-----------+------------------+------+---------------------------
+     11:40:27 | 0,0,0                | W9CN-9   | W9CN-9    | 39.466, -104.701 | 6411 |                     24.39
+     11:40:46 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.360, -104.620 | 6565 |                     32.80
+     11:41:12 | 0,0,0                | KC0D     | KC0D      | 39.370, -104.679 |    0 |                     30.41
+     11:41:16 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.361, -104.621 | 6585 |                     32.73
+     11:42:50 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.361, -104.610 | 6552 |                     33.04
+     11:42:53 | 0,0,0                | KA0TTW-9 | KA0TTW-9  | 39.705, -105.199 | 6342 |                     11.36
+    (6 rows)
+
+
 
 
