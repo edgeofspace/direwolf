@@ -197,7 +197,7 @@ our station has heard directly over the last 5 minutes from SDR #0 on 144.390MHz
         a.heardfrom,
         round(cast(ST_Y(a.location2d) as numeric), 3) || ', ' || round(cast(ST_X(a.location2d) as numeric), 3) as coords,
         round(a.altitude,0) as "alt",
-        round(cast(ST_DistanceSphere(ST_GeomFromText('POINT(-104.990278 39.739167)',4326), a.location2d)*.621371/1000 as numeric), 2) as "distance (mi) from Denver"
+        round(cast(ST_DistanceSphere(ST_GeomFromText('POINT(-104.990278 39.739167)',4326), a.location2d)*.621371/1000 as numeric), 2) as "miles from den"
 
     from
         dw_packets a
@@ -222,16 +222,10 @@ Running the query:
 
 Query output:
 
-     thetime  | instance_channel_sdr | callsign | heardfrom |      coords      | alt  | distance (mi) from Denver 
-    ----------+----------------------+----------+-----------+------------------+------+---------------------------
-     11:40:27 | 0,0,0                | W9CN-9   | W9CN-9    | 39.466, -104.701 | 6411 |                     24.39
-     11:40:46 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.360, -104.620 | 6565 |                     32.80
-     11:41:12 | 0,0,0                | KC0D     | KC0D      | 39.370, -104.679 |    0 |                     30.41
-     11:41:16 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.361, -104.621 | 6585 |                     32.73
-     11:42:50 | 0,0,0                | W0KDE-9  | W0KDE-9   | 39.361, -104.610 | 6552 |                     33.04
-     11:42:53 | 0,0,0                | KA0TTW-9 | KA0TTW-9  | 39.705, -105.199 | 6342 |                     11.36
-    (6 rows)
-
-
-
+     thetime  | instance_channel_sdr | callsign | heardfrom |      coords      |  alt  | miles from den 
+    ----------+----------------------+----------+-----------+------------------+-------+----------------
+     11:48:01 | 0,0,0                | N0OBA-9  | N0OBA-9   | 39.136, -104.928 |  8284 |          41.80
+     11:48:38 | 0,0,0                | ALMGRE   | ALMGRE    | 38.772, -104.993 | 12349 |          66.81
+     11:48:55 | 0,0,0                | N0OBA-9  | N0OBA-9   | 39.136, -104.927 |  8340 |          41.80
+    (3 rows)
 

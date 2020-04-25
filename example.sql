@@ -7,7 +7,7 @@ select  distinct
     --a.comment,
     round(cast(ST_Y(a.location2d) as numeric), 3) || ', ' || round(cast(ST_X(a.location2d) as numeric), 3) as coords,
     round(a.altitude,0) as "alt",
-    round(cast(ST_DistanceSphere(ST_GeomFromText('POINT(-104.990278 39.739167)',4326), a.location2d)*.621371/1000 as numeric), 2) as "distance (mi) from Denver"
+    round(cast(ST_DistanceSphere(ST_GeomFromText('POINT(-104.990278 39.739167)',4326), a.location2d)*.621371/1000 as numeric), 2) as "miles from den"
 
 from
     dw_packets a
