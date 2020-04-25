@@ -20,6 +20,6 @@ where
     and a.callsign = a.heardfrom
 
 order by 
-    1 asc,
-    2
+    thetime asc,
+    callsign
 ;
