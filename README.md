@@ -5,6 +5,8 @@
 
 This is a customized branch of Dire Wolf to enable reception of [APRS](http://www.aprs.org/) packets within the EOSS Tracker system for tracking high altitude balloons.  The EOSS Tracker system leverages several open source projects to provide a graphical (web-based), near real-time, system that enhances tracking and recovery efforts with APRS enabled HAB flights.  Information on the mainstream Dire Wolf branch can be found [here](direwolf-README.md).  
 
+<img src="eoss-block-diagram.png" alt="EOSS Tracker Block Diagram" width="800">
+
 There are two primary differences between this EOSS specific branch and the mainstream Dire Wolf distribution::
 - PostgreSQL integration so that incoming packets are saved to a database table.
 - Increased channel limits over the default of 3
@@ -40,9 +42,10 @@ Build the binaries:
 
 ### The Underlying Database Table ###
 
-This branch of Dire Wolf will attempt to save each incoming packet as a row within a database table.  It will create that table automatically so no provisions need to be made for creating a table beforehand.  There are a couple of important prerequisites for proper operation:
-- The postgis extention should be added to your database
-- Database credentials (username & password) that direwolf can use for database connectivity.  This account should have permissions to create tables.
+This branch of Dire Wolf will attempt to save each incoming packet as a row within a database table.  It will create that table automatically so there is no need for creating a 
+table beforehand.  There are a couple of important prerequisites for proper operation:
+- The [PostGIS](http://www.postgis.org/) extention should be added to your database
+- Database credentials (username & password) that direwolf can use for database connectivity which should have permissions to create tables.
 
 Upon startup, Dire Wolf will attempt to create the following table and indices (one doesn't need to create this...only included here for reference):
 
@@ -80,8 +83,11 @@ Upon startup, Dire Wolf will attempt to create the following table and indices (
 
 ## Additional Configuration Options ##
 
-There are several additional options that should be used within one's direwolf.conf configuration file for specifying database connections, etc..  A quick example:
+There are several additional options that should be appended to one's direwolf.conf configuration file for specifying database connections, etc..  For example:
 
+    ..
+    ..
+    ..
     INSTANCE 0
     PGUSER dbusername
     PGPASSWORD dbpassword
@@ -155,7 +161,7 @@ To build a `FREQMAP` entry for this configuration we need to know two additional
 they receving on.  With the direwolf.conf file shown above, let's assume we have two SDR systems, each listening on two frequencies for APRS packets.  Maybe we have a system something 
 like this:
 
-<<< insert picture >>>
+<img src="example-sdr-setup.png" alt="Example SDR Rx Setup" width="800">
 
 For the first channel, `ADEVICE0`, our `FREQMAP` option would look like this for SDR #0, channel 0, and a frequency of 144.39MHz:
 
