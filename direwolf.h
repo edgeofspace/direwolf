@@ -42,7 +42,7 @@
  * For example, if you wanted to use 4 audio devices at once, change this to 4.
  */
 
-#define MAX_ADEVS 18
+#define MAX_ADEVS 3			
 
 	
 /*

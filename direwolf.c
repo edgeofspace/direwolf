@@ -48,7 +48,6 @@
 #include <getopt.h>
 #include <assert.h>
 #include <string.h>
-#include <strings.h>
 #include <signal.h>
 #include <ctype.h>
 
@@ -119,7 +118,6 @@
 #include "mheard.h"
 #include "ax25_link.h"
 #include "dtime_now.h"
-#include "db.h"
 
 
 //static int idx_decoded = 0;
@@ -178,7 +176,6 @@ static int d_p_opt = 0;			/* "-d p" option for dumping packets over radio. */
 
 static int q_h_opt = 0;			/* "-q h" Quiet, suppress the "heard" line with audio level. */
 static int q_d_opt = 0;			/* "-q d" Quiet, suppress the printing of decoded of APRS packets. */
-static int db_opt  = 0;         /* "-Q Enable database connections for logging of packets */
 
 
 
@@ -268,7 +265,6 @@ int main (int argc, char *argv[])
 	//dw_printf ("Dire Wolf version %d.%d (%s) Beta Test 4\n", MAJOR_VERSION, MINOR_VERSION, __DATE__);
 	//dw_printf ("Dire Wolf DEVELOPMENT version %d.%d %s (%s)\n", MAJOR_VERSION, MINOR_VERSION, "C", __DATE__);
 	dw_printf ("Dire Wolf version %d.%d\n", MAJOR_VERSION, MINOR_VERSION);
-    dw_printf ("Includes support for PostgreSQL database extentions\n");
 
 
 #if defined(ENABLE_GPSD) || defined(USE_HAMLIB) || defined(USE_CM108)
@@ -356,7 +352,7 @@ int main (int argc, char *argv[])
 
 	  /* ':' following option character means arg is required. */
 
-          c = getopt_long(argc, argv, "P:B:D:c:pxQr:b:n:d:q:t:Ul:L:Sa:E:T:",
+          c = getopt_long(argc, argv, "P:B:D:c:pxr:b:n:d:q:t:Ul:L:Sa:E:T:",
                         long_options, &option_index);
           if (c == -1)
             break;
@@ -574,11 +570,6 @@ int main (int argc, char *argv[])
           case 'T':				/* -T for receive timestamp. */
 	    strlcpy (T_opt_timestamp, optarg, sizeof(T_opt_timestamp));
             break;
-
-          case 'Q':             /* -Q for enabling database connection */
-            db_opt = 1;
-            break;
-
 
           default:
 
@@ -826,12 +817,6 @@ int main (int argc, char *argv[])
 	mheard_init (d_m_opt);
 	beacon_init (&audio_config, &misc_config, &igate_config);
 
-/*
- * Initialize PostgresQL database connection, if that option was specified on the commandline
- *
- */
-    if (db_opt != 0)
-        db_init(&misc_config);
 
 /*
  * Get sound samples and decode them.
@@ -1123,11 +1108,6 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 
 	  log_write (chan, &A, pp, alevel, retries);
 
-      // Write output to database
-      if (db_opt != 0)  {
-          db_write_recv (chan, &A, pp);
-      }
-
 	  // temp experiment.
 	  //log_rr_bits (&A, pp);
 
@@ -1227,12 +1207,6 @@ static BOOL cleanup_win (int ctrltype)
 	  text_color_set(DW_COLOR_INFO);
 	  dw_printf ("\nQRT\n");
 	  log_term ();
-
-      // close all database connections
-      if (db_opt != 0) {
-          db_term ();
-      }
-
 	  ptt_term ();
 	  waypoint_term ();
 	  dwgps_term ();
@@ -1250,12 +1224,6 @@ static void cleanup_linux (int x)
 	text_color_set(DW_COLOR_INFO);
 	dw_printf ("\nQRT\n");
 	log_term ();
-
-    // close all database connections
-    if (db_opt != 0) {
-        db_term ();
-    }
-
 	ptt_term ();
 	dwgps_term ();
 	SLEEP_SEC(1);
@@ -1313,7 +1281,6 @@ static void usage (char **argv)
 	dw_printf ("    -p             Enable pseudo terminal for KISS protocol.\n");
 #endif
 	dw_printf ("    -x             Send Xmit level calibration tones.\n");
-    dw_printf ("    -Q             Enable database logging of APRS packets.\n");
 	dw_printf ("    -U             Print UTF-8 test string and exit.\n");
 	dw_printf ("    -S             Print symbol tables and exit.\n");
 	dw_printf ("    -T fmt         Time stamp format for sent and received frames.\n");

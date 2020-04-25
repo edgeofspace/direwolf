@@ -329,9 +329,9 @@ direwolf : direwolf.o config.o recv.o demod.o dsp.o demod_afsk.o demod_psk.o dem
 		gen_tone.o audio.o audio_stats.o digipeater.o cdigipeater.o pfilter.o dedupe.o tq.o xmit.o morse.o \
 		ptt.o beacon.o encode_aprs.o latlong.o encode_aprs.o latlong.o textcolor.o \
 		dtmf.o aprs_tt.o tt_user.o tt_text.o igate.o waypoint.o serial_port.o log.o telemetry.o \
-		dwgps.o dwgpsnmea.o dwgpsd.o dtime_now.o mheard.o ax25_link.o cm108.o db.o \
+		dwgps.o dwgpsnmea.o dwgpsd.o dtime_now.o mheard.o ax25_link.o cm108.o \
 		misc.a geotranz.a
-	$(CC) -o $@ $^ -lpq $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 	@echo " "
 ifneq ($(enable_gpsd),)
 	@echo "\t>\tThis includes support for gpsd."
