@@ -185,8 +185,8 @@ And completing the `FREQMAP` option we end up with the following for all four ch
 
 ## Using Data ##
 
-Once Dire Wolf is operational and running, rows of data should start to appear in the `dw_packets` database table.  For example, what if we wanted to list all of the packets
-our station has heard directly over the last 5 minutes from SDR #0 on 144.390MHz?  We could use a bit of SQL like this (see [example.sql](example.sql)):
+Once Dire Wolf is operational and running, rows of data should start to appear in the `dw_packets` database table.  For example, if we wanted to list all of the packets
+our station has heard directly over the last 5 minutes from SDR #0 on 144.390MHz, we could use a bit of SQL code like this (see [example.sql](example.sql)):
 
 ### Example.sql ###
 
